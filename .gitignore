@@ -1,3 +1,8 @@
+# editor specific
+.vscode/
+# Do not commit data and checkpoint folders
+checkpoint/
+data/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
