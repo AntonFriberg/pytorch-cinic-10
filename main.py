@@ -1,21 +1,21 @@
 '''Train CIFAR10 with PyTorch.'''
 from __future__ import print_function
 
-import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
-import torch.backends.cudnn as cudnn
+import argparse
+import os
+from datetime import datetime
 
+import torch
+import torch.backends.cudnn as cudnn
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
+from torch.optim.lr_scheduler import MultiStepLR
 
-import os
-import argparse
-
-from models import *
+from models import VGG
 from utils import progress_bar
-
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
@@ -50,7 +50,7 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 
 # Model
 print('==> Building model..')
-# net = VGG('VGG19')
+net = VGG('VGG19')
 # net = ResNet18()
 # net = PreActResNet18()
 # net = GoogLeNet()
@@ -61,7 +61,7 @@ print('==> Building model..')
 # net = DPN92()
 # net = ShuffleNetG2()
 # net = SENet18()
-net = ShuffleNetV2(1)
+# net = ShuffleNetV2(1)
 net = net.to(device)
 if device == 'cuda':
     net = torch.nn.DataParallel(net)
@@ -78,6 +78,7 @@ if args.resume:
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+scheduler = MultiStepLR(optimizer, milestones=[150,250], gamma=0.1)
 
 # Training
 def train(epoch):
@@ -136,7 +137,10 @@ def test(epoch):
         torch.save(state, './checkpoint/ckpt.t7')
         best_acc = acc
 
-
-for epoch in range(start_epoch, start_epoch+200):
+start_time = datetime.now()
+for epoch in range(start_epoch, start_epoch+350):
+    scheduler.step()
     train(epoch)
     test(epoch)
+time_elapsed = datetime.now() - start_time
+print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
