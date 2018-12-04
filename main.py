@@ -12,7 +12,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
-from torch.optim.lr_scheduler import MultiStepLR
+from torch.optim.lr_scheduler import MultiStepLR, CosineAnnealingLR
 
 from models import VGG
 from utils import progress_bar
@@ -25,32 +25,49 @@ args = parser.parse_args()
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 best_acc = 0  # best test accuracy
 start_epoch = 0  # start from epoch 0 or last checkpoint epoch
+total_epoch = 300  # The number of total epochs to run
 
 # Data
 print('==> Preparing data..')
-transform_train = transforms.Compose([
-    transforms.RandomCrop(32, padding=4),
-    transforms.RandomHorizontalFlip(),
-    transforms.ToTensor(),
-    transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-])
 
+cinic_directory = './data/cinic-10'
+cinic_mean = [0.47889522, 0.47227842, 0.43047404]
+cinic_std = [0.24205776, 0.23828046, 0.25874835]
+
+transform_train = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize(mean=cinic_mean, std=cinic_std)
+])
+transform_valid = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize(mean=cinic_mean, std=cinic_std)
+])
 transform_test = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    transforms.Normalize(mean=cinic_mean, std=cinic_std)
 ])
 
-trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=128, shuffle=True, num_workers=2)
+trainset = torchvision.datasets.ImageFolder(
+    root=(cinic_directory + '/train'), transform=transform_train)
+trainloader = torch.utils.data.DataLoader(
+    trainset, batch_size=64, shuffle=True, num_workers=2)
 
-testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform_test)
-testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=2)
+validset = torchvision.datasets.ImageFolder(
+    root=(cinic_directory + '/valid'), transform=transform_valid)
+validloader = torch.utils.data.DataLoader(
+    validset, batch_size=100, shuffle=False, num_workers=2)
 
-classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+testset = torchvision.datasets.ImageFolder(
+    root=(cinic_directory + '/test'), transform=transform_test)
+testloader = torch.utils.data.DataLoader(
+    testset, batch_size=100, shuffle=False, num_workers=2)
+
+classes = ('airplane', 'automobile', 'bird', 'cat',
+           'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
 # Model
 print('==> Building model..')
-net = VGG('VGG19')
+net = VGG('VGG16')
 # net = ResNet18()
 # net = PreActResNet18()
 # net = GoogLeNet()
@@ -77,10 +94,11 @@ if args.resume:
     start_epoch = checkpoint['epoch']
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
-scheduler = MultiStepLR(optimizer, milestones=[150,250], gamma=0.1)
+optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=1e-4)
+scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=total_epoch, eta_min=0)
 
 # Training
+
 def train(epoch):
     print('\nEpoch: %d' % epoch)
     net.train()
@@ -101,27 +119,28 @@ def train(epoch):
         correct += predicted.eq(targets).sum().item()
 
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-            % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+                     % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
-def test(epoch):
+
+def validate(epoch):
     global best_acc
     net.eval()
-    test_loss = 0
+    valid_loss = 0
     correct = 0
     total = 0
     with torch.no_grad():
-        for batch_idx, (inputs, targets) in enumerate(testloader):
+        for batch_idx, (inputs, targets) in enumerate(validloader):
             inputs, targets = inputs.to(device), targets.to(device)
             outputs = net(inputs)
             loss = criterion(outputs, targets)
 
-            test_loss += loss.item()
+            valid_loss += loss.item()
             _, predicted = outputs.max(1)
             total += targets.size(0)
             correct += predicted.eq(targets).sum().item()
 
-            progress_bar(batch_idx, len(testloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-                % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
+            progress_bar(batch_idx, len(validloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+                         % (valid_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
     # Save checkpoint.
     acc = 100.*correct/total
@@ -137,10 +156,38 @@ def test(epoch):
         torch.save(state, './checkpoint/ckpt.t7')
         best_acc = acc
 
+
+def test():
+    assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
+    checkpoint = torch.load('./checkpoint/ckpt.t7')
+    net.load_state_dict(checkpoint['net'])
+    net.eval()
+    test_loss = 0
+    correct = 0
+    total = 0
+    print('Test best performing net from epoch {} with accuracy {:.3f}%'.format(
+        checkpoint['epoch'], checkpoint['acc']))
+    with torch.no_grad():
+        for batch_idx, (inputs, targets) in enumerate(testloader):
+            inputs, targets = inputs.to(device), targets.to(device)
+            outputs = net(inputs)
+            loss = criterion(outputs, targets)
+
+            test_loss += loss.item()
+            _, predicted = outputs.max(1)
+            total += targets.size(0)
+            correct += predicted.eq(targets).sum().item()
+
+            progress_bar(batch_idx, len(testloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+                         % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
+
+
 start_time = datetime.now()
-for epoch in range(start_epoch, start_epoch+350):
+print('Runnning training and test for {} epochs'.format(total_epoch))
+for epoch in range(start_epoch, start_epoch+total_epoch):
     scheduler.step()
     train(epoch)
-    test(epoch)
+    validate(epoch)
 time_elapsed = datetime.now() - start_time
-print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))
+print('Training time elapsed (hh:mm:ss.ms) {}\n'.format(time_elapsed))
+test()
