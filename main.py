@@ -98,7 +98,6 @@ optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=1
 scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=total_epoch, eta_min=0)
 
 # Training
-
 def train(epoch):
     print('\nEpoch: %d' % epoch)
     net.train()
@@ -184,10 +183,15 @@ def test():
 
 start_time = datetime.now()
 print('Runnning training and test for {} epochs'.format(total_epoch))
+
+# Run training for specified number of epochs
 for epoch in range(start_epoch, start_epoch+total_epoch):
     scheduler.step()
     train(epoch)
     validate(epoch)
+
 time_elapsed = datetime.now() - start_time
 print('Training time elapsed (hh:mm:ss.ms) {}\n'.format(time_elapsed))
+
+# Run final test on never before seen data
 test()
