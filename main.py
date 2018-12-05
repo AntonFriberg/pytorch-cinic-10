@@ -8,18 +8,20 @@ from datetime import datetime
 import torch
 import torch.backends.cudnn as cudnn
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
+from torch.optim.lr_scheduler import CosineAnnealingLR
 import torchvision
 import torchvision.transforms as transforms
-from torch.optim.lr_scheduler import MultiStepLR, CosineAnnealingLR
 
 from models import VGG
 from utils import progress_bar
 
+# pylint: disable=invalid-name
+
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
-parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
+parser.add_argument('--resume', '-r', action='store_true',
+                    help='resume from checkpoint')
 args = parser.parse_args()
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -34,31 +36,23 @@ cinic_directory = './data/cinic-10'
 cinic_mean = [0.47889522, 0.47227842, 0.43047404]
 cinic_std = [0.24205776, 0.23828046, 0.25874835]
 
-transform_train = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize(mean=cinic_mean, std=cinic_std)
-])
-transform_valid = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize(mean=cinic_mean, std=cinic_std)
-])
-transform_test = transforms.Compose([
+transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=cinic_mean, std=cinic_std)
 ])
 
 trainset = torchvision.datasets.ImageFolder(
-    root=(cinic_directory + '/train'), transform=transform_train)
+    root=(cinic_directory + '/train'), transform=transform)
 trainloader = torch.utils.data.DataLoader(
     trainset, batch_size=64, shuffle=True, num_workers=2)
 
 validset = torchvision.datasets.ImageFolder(
-    root=(cinic_directory + '/valid'), transform=transform_valid)
+    root=(cinic_directory + '/valid'), transform=transform)
 validloader = torch.utils.data.DataLoader(
     validset, batch_size=100, shuffle=False, num_workers=2)
 
 testset = torchvision.datasets.ImageFolder(
-    root=(cinic_directory + '/test'), transform=transform_test)
+    root=(cinic_directory + '/test'), transform=transform)
 testloader = torch.utils.data.DataLoader(
     testset, batch_size=100, shuffle=False, num_workers=2)
 
@@ -94,11 +88,13 @@ if args.resume:
     start_epoch = checkpoint['epoch']
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=1e-4)
-scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=total_epoch, eta_min=0)
+optimizer = optim.SGD(net.parameters(), lr=args.lr,
+                      momentum=0.9, weight_decay=1e-4)
+scheduler = CosineAnnealingLR(
+    optimizer=optimizer, T_max=total_epoch, eta_min=0)
 
-# Training
 def train(epoch):
+    ''' Trains the net on the train dataset for one entire iteration '''
     print('\nEpoch: %d' % epoch)
     net.train()
     train_loss = 0
@@ -122,6 +118,8 @@ def train(epoch):
 
 
 def validate(epoch):
+    ''' Validates the net's accuracy on validation dataset and saves if better
+        accuracy than previously seen. '''
     global best_acc
     net.eval()
     valid_loss = 0
@@ -157,6 +155,7 @@ def validate(epoch):
 
 
 def test():
+    ''' Final test of the best performing net on the testing dataset. '''
     assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
     checkpoint = torch.load('./checkpoint/ckpt.t7')
     net.load_state_dict(checkpoint['net'])

@@ -1,35 +1,49 @@
-# Train CIFAR10 with PyTorch
+# Train CINIC-10 with PyTorch
 
-I'm playing with [PyTorch](http://pytorch.org/) on the CIFAR10 dataset.
+An example of how to train different deep neural networks on the [CINIC-10]
+dataset based on the [pytorch-cifar] repository.
 
-## Pros & cons
-Pros:
-- Built-in data loading and augmentation, very nice!
-- Training is fast, maybe even a little bit faster.
-- Very memory efficient!
+[CINIC-10]: https://github.com/BayesWatch/cinic-10
+[pytorch-cifar]: https://github.com/kuangliu/pytorch-cifar/
 
-Cons:
-- No progress bar, sad :(
-- No built-in log.
+## Development history
+This example was constructed from kuangliu's excellent [pytorch-cifar] example.
+Instead of utilizing the [CIFAR-10] dataset this example use [CINIC-10] which
+is a drop in replacement to [CIFAR-10] which increases the difficulty of the
+image classification task.
+
+In addition to the dataset change this example also contains a number of other
+changes including:
+
+- Cosine annealing learning rate scheduler.
+- Training time output.
+- Dockerfile for simple dependency management
 
 ## Accuracy
+
+This implementation achieves the following accuracy after training for 300
+epochs.
+
 | Model             | Acc.        |
 | ----------------- | ----------- |
-| [VGG16](https://arxiv.org/abs/1409.1556)              | 92.64%      |
-| [ResNet18](https://arxiv.org/abs/1512.03385)          | 93.02%      |
-| [ResNet50](https://arxiv.org/abs/1512.03385)          | 93.62%      |
-| [ResNet101](https://arxiv.org/abs/1512.03385)         | 93.75%      |
-| [MobileNetV2](https://arxiv.org/abs/1801.04381)       | 94.43%      |
-| [ResNeXt29(32x4d)](https://arxiv.org/abs/1611.05431)  | 94.73%      |
-| [ResNeXt29(2x64d)](https://arxiv.org/abs/1611.05431)  | 94.82%      |
-| [DenseNet121](https://arxiv.org/abs/1608.06993)       | 95.04%      |
-| [PreActResNet18](https://arxiv.org/abs/1603.05027)    | 95.11%      |
-| [DPN92](https://arxiv.org/abs/1707.01629)             | 95.16%      |
+| [VGG16](https://arxiv.org/abs/1409.1556)              | 76.54%      |
+| [ResNet18](https://arxiv.org/abs/1512.03385)          | -      |
+| [ResNet50](https://arxiv.org/abs/1512.03385)          | -      |
+| [ResNet101](https://arxiv.org/abs/1512.03385)         | -      |
+| [MobileNetV2](https://arxiv.org/abs/1801.04381)       | -      |
+| [ResNeXt29(32x4d)](https://arxiv.org/abs/1611.05431)  | -      |
+| [ResNeXt29(2x64d)](https://arxiv.org/abs/1611.05431)  | -      |
+| [DenseNet121](https://arxiv.org/abs/1608.06993)       | -      |
+| [PreActResNet18](https://arxiv.org/abs/1603.05027)    | -      |
+| [DPN92](https://arxiv.org/abs/1707.01629)             | -      |
 
 ## Learning rate adjustment
-I manually change the `lr` during training:
-- `0.1` for epoch `[0,150)`
-- `0.01` for epoch `[150,250)`
-- `0.001` for epoch `[250,350)`
+Instead of manually adjusting the learning rate a cosine annealing learning
+rate scheduler is used.
 
-Resume the training with `python main.py --resume --lr=0.01`
+## Useful links
+
+- https://github.com/BayesWatch/cinic-10
+- https://github.com/kuangliu/pytorch-cifar/
+- https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
+- https://pytorch.org/tutorials/beginner/data_loading_tutorial.html
