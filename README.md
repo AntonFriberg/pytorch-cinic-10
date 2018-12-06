@@ -1,5 +1,8 @@
 # Train CINIC-10 with PyTorch
 
+[![Docker Automated build](https://img.shields.io/docker/automated/antonfriberg/pytorch-cinic-10.svg?style=for-the-badge)](https://hub.docker.com/r/antonfriberg/pytorch-cinic-10/)
+[![Docker Build Status](https://img.shields.io/docker/build/antonfriberg/pytorch-cinic-10.svg?style=for-the-badge)](https://hub.docker.com/r/antonfriberg/pytorch-cinic-10/)
+
 An example of how to train different deep neural networks on the [CINIC-10]
 dataset based on the [pytorch-cifar] repository.
 
