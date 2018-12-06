@@ -12,12 +12,16 @@ Instead of utilizing the [CIFAR-10] dataset this example use [CINIC-10] which
 is a drop in replacement to [CIFAR-10] which increases the difficulty of the
 image classification task.
 
+By changing the dataset we increase the amount of images from 60,000 to 270,000.
+The images have the same size as in the CIFAR set and has equal train,
+validation and test splits.
+
 In addition to the dataset change this example also contains a number of other
 changes including:
 
 - Cosine annealing learning rate scheduler.
 - Training time output.
-- Dockerfile for simple dependency management
+- Dockerfile for simple dependency management.
 
 [CIFAR-10]: https://www.cs.toronto.edu/%7Ekriz/cifar.html
 
