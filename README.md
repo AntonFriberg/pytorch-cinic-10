@@ -17,7 +17,7 @@ image classification task.
 
 By changing the dataset we increase the amount of images from 60,000 to 270,000.
 The images have the same size as in the CIFAR set and has equal train,
-validation and test splits.
+validation and test splits. The dataset is around 650 MB.
 
 In addition to the dataset change this example also contains a number of other
 changes including:
@@ -27,6 +27,41 @@ changes including:
 - Dockerfile for simple dependency management.
 
 [CIFAR-10]: https://www.cs.toronto.edu/%7Ekriz/cifar.html
+
+## Run locally
+Make sure that all nvidia drivers and CUDA runtimes are in place to be able to
+run on the GPU. Install [PyTorch] matching your setup.
+
+Download the dataset into the `./data/cinic-10` folder.
+
+```
+mkdir -p data/cinic-10
+curl -L \
+  https://datashare.is.ed.ac.uk/bitstream/handle/10283/3192/CINIC-10.tar.gz \
+  | tar xz -C data/cinic-10
+```
+
+Run the main.py file with your python environment where you installed [PyTorch].
+
+```
+python main.py
+```
+
+This creates a `checkpoint` folder in your workdir where the best performing
+PyTorch model is saved. **Note** that it is overwritten on re-runs.
+
+[PyTorch]: https://pytorch.org/get-started/locally/
+
+## Run with Nvidia Docker
+
+To simply run a training session with the VGG16 neural network on nvidia-docker
+simply run the following.
+
+```
+nvidia-docker run -it --rm --name cinic-10 antonfriberg/pytorch-cinic-10:latest
+```
+
+Currently there is a need for `-it` option in order to run the docker benchmark.
 
 ## Accuracy
 
