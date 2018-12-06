@@ -41,8 +41,15 @@ transform = transforms.Compose([
     transforms.Normalize(mean=cinic_mean, std=cinic_std)
 ])
 
+train_transform = transforms.Compose([
+    transforms.RandomCrop(32, padding=4),
+    transforms.RandomHorizontalFlip(),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=cinic_mean, std=cinic_std)
+])
+
 trainset = torchvision.datasets.ImageFolder(
-    root=(cinic_directory + '/train'), transform=transform)
+    root=(cinic_directory + '/train'), transform=train_transform)
 trainloader = torch.utils.data.DataLoader(
     trainset, batch_size=64, shuffle=True, num_workers=2)
 
@@ -92,6 +99,7 @@ optimizer = optim.SGD(net.parameters(), lr=args.lr,
                       momentum=0.9, weight_decay=1e-4)
 scheduler = CosineAnnealingLR(
     optimizer=optimizer, T_max=total_epoch, eta_min=0)
+
 
 def train(epoch):
     ''' Trains the net on the train dataset for one entire iteration '''
