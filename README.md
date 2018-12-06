@@ -19,6 +19,8 @@ changes including:
 - Training time output.
 - Dockerfile for simple dependency management
 
+[CIFAR-10]: https://www.cs.toronto.edu/%7Ekriz/cifar.html
+
 ## Accuracy
 
 This implementation achieves the following accuracy after training for 300
