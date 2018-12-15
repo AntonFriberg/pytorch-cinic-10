@@ -77,7 +77,7 @@ epochs on a single Nvidia GTX 1080TI with a training batch size of 64.
 | [MobileNetV2](https://arxiv.org/abs/1801.04381)       | 83.99%   | 6 hours 19 minutes  |
 | [ResNeXt29(32x4d)](https://arxiv.org/abs/1611.05431)  | -        | -                   |
 | [ResNeXt29(2x64d)](https://arxiv.org/abs/1611.05431)  | -        | -                   |
-| [DenseNet121](https://arxiv.org/abs/1608.06993)       | -        | -                   |
+| [DenseNet121](https://arxiv.org/abs/1608.06993)       | 88.58%   | 16 hours 34 minutes |
 | [PreActResNet18](https://arxiv.org/abs/1603.05027)    | 87.01%   | 4 hours 19 minutes  |
 | [DPN92](https://arxiv.org/abs/1707.01629)             | 88.18%   | 38 hours 33 minutes |
 
