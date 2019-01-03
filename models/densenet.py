@@ -10,14 +10,16 @@ class Bottleneck(nn.Module):
     def __init__(self, in_planes, growth_rate):
         super(Bottleneck, self).__init__()
         self.bn1 = nn.BatchNorm2d(in_planes)
-        self.conv1 = nn.Conv2d(in_planes, 4*growth_rate, kernel_size=1, bias=False)
+        self.conv1 = nn.Conv2d(in_planes, 4*growth_rate,
+                               kernel_size=1, bias=False)
         self.bn2 = nn.BatchNorm2d(4*growth_rate)
-        self.conv2 = nn.Conv2d(4*growth_rate, growth_rate, kernel_size=3, padding=1, bias=False)
+        self.conv2 = nn.Conv2d(4*growth_rate, growth_rate,
+                               kernel_size=3, padding=1, bias=False)
 
     def forward(self, x):
         out = self.conv1(F.relu(self.bn1(x)))
         out = self.conv2(F.relu(self.bn2(out)))
-        out = torch.cat([out,x], 1)
+        out = torch.cat([out, x], 1)
         return out
 
 
@@ -39,7 +41,8 @@ class DenseNet(nn.Module):
         self.growth_rate = growth_rate
 
         num_planes = 2*growth_rate
-        self.conv1 = nn.Conv2d(3, num_planes, kernel_size=3, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(
+            3, num_planes, kernel_size=3, padding=1, bias=False)
 
         self.dense1 = self._make_dense_layers(block, num_planes, nblocks[0])
         num_planes += nblocks[0]*growth_rate
@@ -83,24 +86,30 @@ class DenseNet(nn.Module):
         out = self.linear(out)
         return out
 
-def DenseNet121():
-    return DenseNet(Bottleneck, [6,12,24,16], growth_rate=32)
 
-def DenseNet169():
-    return DenseNet(Bottleneck, [6,12,32,32], growth_rate=32)
+def dense_net121():
+    return DenseNet(Bottleneck, [6, 12, 24, 16], growth_rate=32)
 
-def DenseNet201():
-    return DenseNet(Bottleneck, [6,12,48,32], growth_rate=32)
 
-def DenseNet161():
-    return DenseNet(Bottleneck, [6,12,36,24], growth_rate=48)
+def dense_net169():
+    return DenseNet(Bottleneck, [6, 12, 32, 32], growth_rate=32)
 
-def densenet_cifar():
-    return DenseNet(Bottleneck, [6,12,24,16], growth_rate=12)
+
+def dense_net201():
+    return DenseNet(Bottleneck, [6, 12, 48, 32], growth_rate=32)
+
+
+def dense_net161():
+    return DenseNet(Bottleneck, [6, 12, 36, 24], growth_rate=48)
+
+
+def dense_net_cifar():
+    return DenseNet(Bottleneck, [6, 12, 24, 16], growth_rate=12)
+
 
 def test():
-    net = densenet_cifar()
-    x = torch.randn(1,3,32,32)
+    net = dense_net_cifar()
+    x = torch.randn(1, 3, 32, 32)
     y = net(x)
     print(y)
 
