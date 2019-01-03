@@ -70,7 +70,7 @@ classes = ('airplane', 'automobile', 'bird', 'cat',
 print('==> Building model..')
 net = vgg16()
 # net = ResNet18()
-# net = PreActResNet18()
+# net = preact_res_net18()
 # net = google_net()
 # net = dense_net121()
 # net = ResNeXt29_2x64d()
