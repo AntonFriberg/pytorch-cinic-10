@@ -80,6 +80,7 @@ net = vgg16()
 # net = ShuffleNetG2()
 # net = SENet18()
 # net = ShuffleNetV2(1)
+# net = le_net()
 net = net.to(device)
 if device == 'cuda':
     net = torch.nn.DataParallel(net)
