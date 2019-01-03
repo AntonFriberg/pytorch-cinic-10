@@ -109,12 +109,12 @@ class SENet(nn.Module):
         return out
 
 
-def SENet18():
+def se_net18():
     return SENet(PreActBlock, [2,2,2,2])
 
 
 def test():
-    net = SENet18()
+    net = se_net18()
     y = net(torch.randn(1,3,32,32))
     print(y.size())
 
