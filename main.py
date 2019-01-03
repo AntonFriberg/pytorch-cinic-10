@@ -13,12 +13,12 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 import torchvision
 import torchvision.transforms as transforms
 
-from models import VGG
+from models import vgg16
 from utils import progress_bar
 
 # pylint: disable=invalid-name
 
-parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
+parser = argparse.ArgumentParser(description='PyTorch CINIC10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', action='store_true',
                     help='resume from checkpoint')
@@ -27,7 +27,7 @@ args = parser.parse_args()
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 best_acc = 0  # best test accuracy
 start_epoch = 0  # start from epoch 0 or last checkpoint epoch
-total_epoch = 300  # The number of total epochs to run
+total_epoch = 300  # the number of total epochs to run
 
 # Data
 print('==> Preparing data..')
@@ -68,7 +68,7 @@ classes = ('airplane', 'automobile', 'bird', 'cat',
 
 # Model
 print('==> Building model..')
-net = VGG('VGG16')
+net = vgg16()
 # net = ResNet18()
 # net = PreActResNet18()
 # net = GoogLeNet()
