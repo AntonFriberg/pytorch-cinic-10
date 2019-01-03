@@ -94,7 +94,7 @@ class DownBlock(nn.Module):
 
 
 class ShuffleNetV2(nn.Module):
-    def __init__(self, net_size):
+    def __init__(self, net_size, configs):
         super(ShuffleNetV2, self).__init__()
         out_channels = configs[net_size]['out_channels']
         num_blocks = configs[net_size]['num_blocks']
@@ -131,29 +131,31 @@ class ShuffleNetV2(nn.Module):
         return out
 
 
-configs = {
-    0.5: {
-        'out_channels': (48, 96, 192, 1024),
-        'num_blocks': (3, 7, 3)
-    },
+def shuffle_netv2(net_size=1):
+    configs = {
+        0.5: {
+            'out_channels': (48, 96, 192, 1024),
+            'num_blocks': (3, 7, 3)
+        },
 
-    1: {
-        'out_channels': (116, 232, 464, 1024),
-        'num_blocks': (3, 7, 3)
-    },
-    1.5: {
-        'out_channels': (176, 352, 704, 1024),
-        'num_blocks': (3, 7, 3)
-    },
-    2: {
-        'out_channels': (224, 488, 976, 2048),
-        'num_blocks': (3, 7, 3)
+        1: {
+            'out_channels': (116, 232, 464, 1024),
+            'num_blocks': (3, 7, 3)
+        },
+        1.5: {
+            'out_channels': (176, 352, 704, 1024),
+            'num_blocks': (3, 7, 3)
+        },
+        2: {
+            'out_channels': (224, 488, 976, 2048),
+            'num_blocks': (3, 7, 3)
+        }
     }
-}
+    return ShuffleNetV2(net_size, configs)
 
 
 def test():
-    net = ShuffleNetV2(net_size=0.5)
+    net = shuffle_netv2(net_size=0.5)
     x = torch.randn(3, 3, 32, 32)
     y = net(x)
     print(y.shape)
