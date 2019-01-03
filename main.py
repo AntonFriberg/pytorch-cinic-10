@@ -69,7 +69,7 @@ classes = ('airplane', 'automobile', 'bird', 'cat',
 # Model
 print('==> Building model..')
 net = vgg16()
-# net = ResNet18()
+# net = res_net18()
 # net = preact_res_net18()
 # net = google_net()
 # net = dense_net121()
