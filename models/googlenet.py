@@ -97,9 +97,12 @@ class GoogLeNet(nn.Module):
         out = self.linear(out)
         return out
 
+def google_net():
+    return GoogLeNet()
+
 
 def test():
-    net = GoogLeNet()
+    net = google_net()
     x = torch.randn(1,3,32,32)
     y = net(x)
     print(y.size())
