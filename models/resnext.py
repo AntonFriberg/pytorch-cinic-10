@@ -14,17 +14,21 @@ class Block(nn.Module):
     def __init__(self, in_planes, cardinality=32, bottleneck_width=4, stride=1):
         super(Block, self).__init__()
         group_width = cardinality * bottleneck_width
-        self.conv1 = nn.Conv2d(in_planes, group_width, kernel_size=1, bias=False)
+        self.conv1 = nn.Conv2d(in_planes, group_width,
+                               kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(group_width)
-        self.conv2 = nn.Conv2d(group_width, group_width, kernel_size=3, stride=stride, padding=1, groups=cardinality, bias=False)
+        self.conv2 = nn.Conv2d(group_width, group_width, kernel_size=3,
+                               stride=stride, padding=1, groups=cardinality, bias=False)
         self.bn2 = nn.BatchNorm2d(group_width)
-        self.conv3 = nn.Conv2d(group_width, self.expansion*group_width, kernel_size=1, bias=False)
+        self.conv3 = nn.Conv2d(
+            group_width, self.expansion*group_width, kernel_size=1, bias=False)
         self.bn3 = nn.BatchNorm2d(self.expansion*group_width)
 
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != self.expansion*group_width:
             self.shortcut = nn.Sequential(
-                nn.Conv2d(in_planes, self.expansion*group_width, kernel_size=1, stride=stride, bias=False),
+                nn.Conv2d(in_planes, self.expansion*group_width,
+                          kernel_size=1, stride=stride, bias=False),
                 nn.BatchNorm2d(self.expansion*group_width)
             )
 
@@ -56,7 +60,8 @@ class ResNeXt(nn.Module):
         strides = [stride] + [1]*(num_blocks-1)
         layers = []
         for stride in strides:
-            layers.append(Block(self.in_planes, self.cardinality, self.bottleneck_width, stride))
+            layers.append(Block(self.in_planes, self.cardinality,
+                                self.bottleneck_width, stride))
             self.in_planes = Block.expansion * self.cardinality * self.bottleneck_width
         # Increase bottleneck_width by 2 after each stage.
         self.bottleneck_width *= 2
@@ -74,21 +79,25 @@ class ResNeXt(nn.Module):
         return out
 
 
-def ResNeXt29_2x64d():
-    return ResNeXt(num_blocks=[3,3,3], cardinality=2, bottleneck_width=64)
+def res_next29_2x64d():
+    return ResNeXt(num_blocks=[3, 3, 3], cardinality=2, bottleneck_width=64)
 
-def ResNeXt29_4x64d():
-    return ResNeXt(num_blocks=[3,3,3], cardinality=4, bottleneck_width=64)
 
-def ResNeXt29_8x64d():
-    return ResNeXt(num_blocks=[3,3,3], cardinality=8, bottleneck_width=64)
+def res_next29_4x64d():
+    return ResNeXt(num_blocks=[3, 3, 3], cardinality=4, bottleneck_width=64)
 
-def ResNeXt29_32x4d():
-    return ResNeXt(num_blocks=[3,3,3], cardinality=32, bottleneck_width=4)
+
+def res_next29_8x64d():
+    return ResNeXt(num_blocks=[3, 3, 3], cardinality=8, bottleneck_width=64)
+
+
+def res_next29_32x4d():
+    return ResNeXt(num_blocks=[3, 3, 3], cardinality=32, bottleneck_width=4)
+
 
 def test_resnext():
-    net = ResNeXt29_2x64d()
-    x = torch.randn(1,3,32,32)
+    net = res_next29_2x64d()
+    x = torch.randn(1, 3, 32, 32)
     y = net(x)
     print(y.size())
 
