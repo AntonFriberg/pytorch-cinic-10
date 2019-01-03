@@ -109,15 +109,15 @@ class PNASNet(nn.Module):
         return out
 
 
-def PNASNetA():
+def pnas_net_a():
     return PNASNet(CellA, num_cells=6, num_planes=44)
 
-def PNASNetB():
+def pnas_net_b():
     return PNASNet(CellB, num_cells=6, num_planes=32)
 
 
 def test():
-    net = PNASNetB()
+    net = pnas_net_b()
     x = torch.randn(1,3,32,32)
     y = net(x)
     print(y)
