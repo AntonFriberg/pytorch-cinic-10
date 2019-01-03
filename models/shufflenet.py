@@ -83,7 +83,7 @@ class ShuffleNet(nn.Module):
         return out
 
 
-def ShuffleNetG2():
+def shuffle_netg2():
     cfg = {
         'out_planes': [200,400,800],
         'num_blocks': [4,8,4],
@@ -91,7 +91,7 @@ def ShuffleNetG2():
     }
     return ShuffleNet(cfg)
 
-def ShuffleNetG3():
+def shuffle_netg3():
     cfg = {
         'out_planes': [240,480,960],
         'num_blocks': [4,8,4],
@@ -101,7 +101,7 @@ def ShuffleNetG3():
 
 
 def test():
-    net = ShuffleNetG2()
+    net = shuffle_netg2()
     x = torch.randn(1,3,32,32)
     y = net(x)
     print(y)
