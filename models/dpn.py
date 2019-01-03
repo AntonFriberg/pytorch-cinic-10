@@ -70,7 +70,7 @@ class DPN(nn.Module):
         return out
 
 
-def DPN26():
+def dpn26():
     cfg = {
         'in_planes': (96,192,384,768),
         'out_planes': (256,512,1024,2048),
@@ -79,7 +79,7 @@ def DPN26():
     }
     return DPN(cfg)
 
-def DPN92():
+def dpn92():
     cfg = {
         'in_planes': (96,192,384,768),
         'out_planes': (256,512,1024,2048),
@@ -90,7 +90,7 @@ def DPN92():
 
 
 def test():
-    net = DPN92()
+    net = dpn92()
     x = torch.randn(1,3,32,32)
     y = net(x)
     print(y)
