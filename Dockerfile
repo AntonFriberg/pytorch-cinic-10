@@ -5,4 +5,4 @@ RUN mkdir -p data/cinic-10 && curl -L \
  tar xz -C data/cinic-10
 # Copy over source code
 COPY . ./
-CMD python main.py
+ENTRYPOINT ["python", "main.py", "data/cinic-10"]
