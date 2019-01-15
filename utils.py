@@ -3,7 +3,6 @@
     - msr_init: net parameter initialization.
     - progress_bar: progress bar mimic xlua.progress.
 '''
-import os
 import sys
 import time
 
@@ -44,10 +43,8 @@ def init_params(net):
                 init.constant(m.bias, 0)
 
 
-_, term_width = os.popen('stty size', 'r').read().split()
-term_width = int(term_width)
-
-TOTAL_BAR_LENGTH = 65.
+TERM_WIDTH = 100
+TOTAL_BAR_LENGTH = 20.
 last_time = time.time()
 begin_time = last_time
 
@@ -81,11 +78,11 @@ def progress_bar(current, total, msg=None):
 
     msg = ''.join(L)
     sys.stdout.write(msg)
-    for i in range(term_width-int(TOTAL_BAR_LENGTH)-len(msg)-3):
+    for i in range(TERM_WIDTH-int(TOTAL_BAR_LENGTH)-len(msg)-3):
         sys.stdout.write(' ')
 
     # Go back to the center of the bar.
-    for i in range(term_width-int(TOTAL_BAR_LENGTH/2)+2):
+    for i in range(TERM_WIDTH-int(TOTAL_BAR_LENGTH/2)+2):
         sys.stdout.write('\b')
     sys.stdout.write(' %d/%d ' % (current+1, total))
 
