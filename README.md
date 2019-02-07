@@ -8,9 +8,12 @@ dataset based on the [pytorch-cifar] repository.
 
 [CINIC-10]: https://github.com/BayesWatch/cinic-10
 [pytorch-cifar]: https://github.com/kuangliu/pytorch-cifar/
+[pytorch imagenet example]: https://github.com/pytorch/examples/tree/master/imagenet
+[pytorch-classification]: https://github.com/bearpaw/pytorch-classification
 
 ## Development history
-This example was constructed from kuangliu's excellent [pytorch-cifar] example.
+This example was constructed from kuangliu's excellent [pytorch-cifar], the
+official [PyTorch imagenet example] and bearpaw's [pytorch-classification].
 Instead of utilizing the [CIFAR-10] dataset this example use [CINIC-10] which
 is a drop in replacement to [CIFAR-10] which increases the difficulty of the
 image classification task.
@@ -67,19 +70,41 @@ Currently there is a need for `-it` option in order to run the docker benchmark.
 
 This implementation achieves the following accuracy after training for 300
 epochs on a single Nvidia GTX 1080TI with a training batch size of 64.
+res_next29_32x4d.
 
-| Model                                                 | Accuracy | Training Time       |
-| ----------------------------------------------------- | -------- | ------------------- |
-| [VGG16](https://arxiv.org/abs/1409.1556)              | 84.74%   | 3 hours 12 minutes  |
-| [ResNet18](https://arxiv.org/abs/1512.03385)          | 87.45%   | 4 hours 41 minutes  |
-| [ResNet50](https://arxiv.org/abs/1512.03385)          | 88.40%   | 15 hours 12 minutes |
-| [ResNet101](https://arxiv.org/abs/1512.03385)         | 88.42%   | 24 hours 57 minutes |
-| [MobileNetV2](https://arxiv.org/abs/1801.04381)       | 83.99%   | 6 hours 19 minutes  |
-| [ResNeXt29(32x4d)](https://arxiv.org/abs/1611.05431)  | 88.67%   | 14 hours 21 minutes |
-| [ResNeXt29(2x64d)](https://arxiv.org/abs/1611.05431)  | 89.09%   | 14 hours 6 minutes  |
-| [DenseNet121](https://arxiv.org/abs/1608.06993)       | 88.58%   | 16 hours 34 minutes |
-| [PreActResNet18](https://arxiv.org/abs/1603.05027)    | 87.01%   | 4 hours 19 minutes  |
-| [DPN92](https://arxiv.org/abs/1707.01629)             | 88.18%   | 38 hours 33 minutes |
+| Model                                                 | Accuracy | Native Training Time | Docker Training Time |
+| ----------------------------------------------------- | -------- | -------------------- | -------------------- |
+| [VGG16](https://arxiv.org/abs/1409.1556)              | 84.74%   | 3 hours 12 minutes   | 3 hours 40 minutes   |
+| [ResNet18](https://arxiv.org/abs/1512.03385)          | 87.45%   | 4 hours 41 minutes   | 4 hours 24 minutes   |
+| [ResNet50](https://arxiv.org/abs/1512.03385)          | 88.40%   | 15 hours 12 minutes  | 15 hours 27 minutes  |
+| [ResNet101](https://arxiv.org/abs/1512.03385)         | 88.42%   | 24 hours 57 minutes  | 25 hours 19 minutes  |
+| [MobileNetV2](https://arxiv.org/abs/1801.04381)       | 83.99%   | 6 hours 19 minutes   | 6 hours 10 minutes   |
+| [ResNeXt29(32x4d)](https://arxiv.org/abs/1611.05431)  | 88.67%   | 14 hours 21 minutes  | 14 hours 59 minutes  |
+| [ResNeXt29(2x64d)](https://arxiv.org/abs/1611.05431)  | 89.09%   | 14 hours 6 minutes   | 14 hours 47 minutes  |
+| [DenseNet121](https://arxiv.org/abs/1608.06993)       | 88.58%   | 16 hours 34 minutes  | 17 hours 3 minutes   |
+| [PreActResNet18](https://arxiv.org/abs/1603.05027)    | 87.01%   | 4 hours 19 minutes   | 4 hours 19 minutes   |
+| [DPN92](https://arxiv.org/abs/1707.01629)             | 88.18%   | 38 hours 33 minutes  | 43 hours 19 minutes  |
+
+This is the complete software rundown.
+
+| Software      | Native Version | Docker Version |
+| ------------- | -------------- | -------------- |
+| Distro        | Ubuntu 16.04   | Ubuntu 16.04   |
+| Nvidia Driver | 384.130        | 410.78         |
+| Nvidia CUDA   | 8.0.61         | 10.0.130       |
+| Nvidia cuDNN  | 6.0.21         | 7.4.1          |
+| PyTorch       | 1.0.0          | 1.0.0          |
+
+Both native and docker benchmark runs where performed on the same hardware.
+
+| Hardware   | Brand    | Version       | Specification   |
+| ----------- | -------- | ------------- | --------------- |
+| CPU         | Intel    | i7 8700K      | 6x3.7GHz        |
+| GPU         | Nvidia   | GTX 1080Ti    | 1 531 MHz, 11GB |
+| RAM         | Corsair  | DDR4          | 2x8GB, 2666MHz  |
+| PSU         | Corsair  | CX750         | 750W            |
+| Storage     | Intel    | 660p NVMe SSD | 1TB             |
+| Motherboard | Gigabyte | H370 HD3      | rev. 1.0        |
 
 ## Learning rate adjustment
 Instead of manually adjusting the learning rate a cosine annealing learning
