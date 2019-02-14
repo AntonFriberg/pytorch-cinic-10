@@ -93,7 +93,7 @@ This is the complete software rundown.
 | Nvidia Driver | 384.130        | 410.78         |
 | Nvidia CUDA   | 8.0.61         | 10.0.130       |
 | Nvidia cuDNN  | 6.0.21         | 7.4.1          |
-| Python        | 2.7.12         | 3.6.7          |
+| Python        | 3.5.2          | 3.6.7          |
 | PyTorch       | 1.0.0          | 1.0.0          |
 | TorchVision   | 0.2.1          | 0.2.1          |
 
