@@ -4,6 +4,7 @@ from __future__ import print_function
 import argparse
 import os
 from datetime import datetime
+from multiprocessing import Process
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -11,54 +12,106 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 
+from polyaxon_client.tracking import (Experiment, get_data_paths,
+                                      get_outputs_path)
+from polystores.stores.manager import StoreManager
+
 import models
 from utils import progress_bar
 
 # pylint: disable=invalid-name,redefined-outer-name,global-statement
-
 model_names = sorted(name for name in models.__dict__ if not name.startswith(
     "__") and callable(models.__dict__[name]))
-best_acc = 0 # best test accuracy
 
 parser = argparse.ArgumentParser(description='PyTorch CINIC10 Training')
-parser.add_argument('data', metavar='DIR', default='data/cinic10',
-                    help='path to dataset (default: data/cinic-10)')
 parser.add_argument('-a', '--arch', metavar='ARCH', default='vgg16',
                     choices=model_names,
                     help='model architecture: ' +
                     ' | '.join(model_names) +
                     ' (default: vgg16)')
+parser.add_argument('--batch-size', type=int, default=64, metavar='N',
+                    help='input batch size for training (default: 64)')
+parser.add_argument('--valid-batch-size', type=int, default=100, metavar='VALID',
+                    help='input batch size for validating (default: 100)')
+parser.add_argument('--test-batch-size', type=int, default=100, metavar='TEST',
+                    help='input batch size for testing (default: 100)')
 parser.add_argument('-j', '--workers', default=2, type=int, metavar='N',
                     help='number of data loading workers (default: 2)')
 parser.add_argument('--epochs', default=300, type=int, metavar='N',
-                    help='number of total epochs to run')
-parser.add_argument('-b', '--batch-size', default=64, type=int,
-                    metavar='N',
-                    help='mini-batch size (default: 64), this is the total '
-                         'batch size of all GPUs on the current node when '
-                         'using Data Parallel or Distributed Data Parallel')
+                    help='number of epochs to train (default:300)')
 parser.add_argument('--lr', '--learning-rate', default=0.1, type=float,
                     metavar='LR', help='initial learning rate', dest='lr')
-parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
-                    help='momentum')
-parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
-                    metavar='W', help='weight decay (default: 1e-4)',
-                    dest='weight_decay')
-parser.add_argument('--no-cuda', action='store_true', default=False,
-                    help='disables CUDA training')
-
+parser.add_argument('--momentum', default=0.9, type=float,
+                    metavar='M', help='SGD momentum factor (default: 0.9)')
+parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float, metavar='W',
+                    help='SGD weight decay (L2 penalty) (default: 1e-4)', dest='weight_decay')
+parser.add_argument('--no-cuda', action='store_true',
+                    default=False, help='disables CUDA training')
+parser.add_argument('--seed', type=int, metavar='S',
+                    help='set randomization seed manually')
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
-# Data loading code
-print('==> Preparing data..')
+# Polyaxon
+print('Setting up Polyaxon experiment')
+experiment = Experiment()
+print(experiment.get_experiment_info())
+print("Data paths: {}".format(get_data_paths()))
+print("Outputs path: {}".format(get_outputs_path()))
+experiment.set_description('PyTorch CINIC10 Benchmark')
+experiment.log_params(
+    model_architecture=args.arch,
+    train_batch_size=args.batch_size,
+    valid_batch_size=args.valid_batch_size,
+    test_batch_size=args.test_batch_size,
+    epochs=args.epochs,
+    learning_rate=args.lr,
+    data_loading_workers=args.workers,
+    sgd_momentum_factor=args.momentum,
+    sgd_weight_decay=args.weight_decay,
+    cuda_enabled=args.cuda,
+    seed=args.seed
+)
 
-traindir = os.path.join(args.data, 'train')
-validatedir = os.path.join(args.data, 'valid')
-testdir = os.path.join(args.data, 'test')
+store = StoreManager(path=get_data_paths()['cinic-10'])
+
+train_dir = '/data/train'
+valid_dir = '/data/valid'
+test_dir = '/data/test'
+
+# Download data via Polyaxon S3 integration
+print('Starting parallel download')
+start_time = datetime.now()
+d1 = Process(target=store.download_dir, args=('train', train_dir))
+d2 = Process(target=store.download_dir, args=('valid', valid_dir))
+d3 = Process(target=store.download_dir, args=('test', test_dir))
+d1.start()
+d2.start()
+d3.start()
+print('All download threads started')
+d1.join()
+d2.join()
+d3.join()
+time_elapsed = datetime.now() - start_time
+print('Download time (hh:mm:ss.ms) {}\n'.format(time_elapsed))
+print('Logging data params to Polyaxon')
+experiment.log_params(data_download_time=time_elapsed)
+experiment.log_data_ref(train_dir, data_name='train')
+experiment.log_data_ref(valid_dir, data_name='valid')
+experiment.log_data_ref(test_dir, data_name='test')
+
+# Data loading code
+print('==> Initialize data loading..')
+
+if args.seed:
+    torch.manual_seed(args.seed)
+    if args.cuda:
+        torch.cuda.manual_seed(args.seed)
+
 cinic_mean = [0.47889522, 0.47227842, 0.43047404]
 cinic_std = [0.24205776, 0.23828046, 0.25874835]
 normalize = transforms.Normalize(mean=cinic_mean, std=cinic_std)
+best_acc = 0  # best test accuracy
 
 transform = transforms.Compose([
     transforms.ToTensor(),
@@ -72,21 +125,21 @@ train_transform = transforms.Compose([
     transforms.Normalize(mean=cinic_mean, std=cinic_std)
 ])
 
-trainset = datasets.ImageFolder(root=traindir, transform=train_transform)
+trainset = datasets.ImageFolder(root=train_dir, transform=train_transform)
 trainloader = torch.utils.data.DataLoader(trainset,
                                           batch_size=args.batch_size,
                                           shuffle=True,
                                           num_workers=args.workers)
 
-validateset = datasets.ImageFolder(root=validatedir, transform=transform)
+validateset = datasets.ImageFolder(root=valid_dir, transform=transform)
 validateloader = torch.utils.data.DataLoader(validateset,
-                                             batch_size=100,
+                                             batch_size=args.valid_batch_size,
                                              shuffle=True,
                                              num_workers=args.workers)
 
-testset = datasets.ImageFolder(root=testdir, transform=transform)
+testset = datasets.ImageFolder(root=test_dir, transform=transform)
 testloader = torch.utils.data.DataLoader(testset,
-                                         batch_size=100,
+                                         batch_size=args.test_batch_size,
                                          shuffle=True,
                                          num_workers=args.workers)
 
@@ -110,7 +163,8 @@ optimizer = torch.optim.SGD(model.parameters(),
                             lr=args.lr,
                             momentum=args.momentum,
                             weight_decay=args.weight_decay)
-scheduler = CosineAnnealingLR(optimizer=optimizer, T_max=args.epochs, eta_min=0)
+scheduler = CosineAnnealingLR(
+    optimizer=optimizer, T_max=args.epochs, eta_min=0)
 
 
 def train(epoch):
