@@ -276,6 +276,7 @@ for epoch in range(0, args.epochs):
 
 time_elapsed = datetime.now() - start_time
 print('Training time elapsed (hh:mm:ss.ms) {}\n'.format(time_elapsed))
+experiment.log_params(training_time=str(time_elapsed))
 
 # Run final test on never before seen data
 test()
