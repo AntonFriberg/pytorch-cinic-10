@@ -279,3 +279,6 @@ print('Training time elapsed (hh:mm:ss.ms) {}\n'.format(time_elapsed))
 
 # Run final test on never before seen data
 test()
+
+# Upload result to polyaxon output
+experiment.outputs_store.upload_file('/code/checkpoint/ckpt.t7')
