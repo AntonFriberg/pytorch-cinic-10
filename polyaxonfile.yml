@@ -1,0 +1,42 @@
+---
+version: 1
+
+kind: experiment
+
+environment:
+  resources:
+    gpu:
+      limits: 1
+
+declarations:
+  arch: vgg16
+  train_batch_size: 64
+  valid_batch_size: 100
+  test_batch_size: 100
+  workers: 2
+  epochs: 300
+  learning_rate: 0.1
+  sgd_momentum_factor: 0.9
+  sgd_weight_decay: 0.0001
+  seed: 1
+
+build:
+  image: pytorch/pytorch:1.0-cuda10.0-cudnn7-runtime
+  build_steps:
+    - pip install -r requirements.txt
+  env_vars:
+#    - [http_proxy, "http://wwwproxy.example.com:8080"]
+#    - [https_proxy, "http://wwwproxy.example.com:8080"]
+#    - [no_proxy, ".se.example.com,polyaxon-polyaxon-api"]
+
+run:
+  cmd:  python3 main.py --arch={{ arch }} \
+                        --batch-size={{ train_batch_size }} \
+                        --valid-batch-size={{ valid_batch_size }} \
+                        --test-batch-size={{ test_batch_size }} \
+                        --workers={{ workers }} \
+                        --epochs={{ epochs }} \
+                        --learning-rate={{ learning_rate }} \
+                        --momentum={{ sgd_momentum_factor }} \
+                        --weight-decay={{ sgd_weight_decay }} \
+                        --seed={{ seed }}
