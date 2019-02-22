@@ -95,7 +95,7 @@ d3.join()
 time_elapsed = datetime.now() - start_time
 print('Download time (hh:mm:ss.ms) {}\n'.format(time_elapsed))
 print('Logging data params to Polyaxon')
-experiment.log_params(data_download_time=time_elapsed)
+experiment.log_params(data_download_time=str(time_elapsed))
 experiment.log_data_ref(train_dir, data_name='train')
 experiment.log_data_ref(valid_dir, data_name='valid')
 experiment.log_data_ref(test_dir, data_name='test')
