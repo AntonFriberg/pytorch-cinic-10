@@ -192,6 +192,9 @@ def train(epoch):
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                      % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
+    acc = 100.*correct/total
+    experiment.log_metrics(train_accuracy=acc, epoch=epoch)
+
 
 def validate(epoch):
     ''' Validates the model's accuracy on validation dataset and saves if better
@@ -217,8 +220,9 @@ def validate(epoch):
             progress_bar(batch_idx, len(validateloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                          % (valid_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
-    # Save checkpoint.
     acc = 100.*correct/total
+    experiment.log_metrics(validate_accuracy=acc, epoch=epoch)
+    # Save checkpoint.
     if acc > best_acc:
         print('Saving..')
         state = {
@@ -257,6 +261,8 @@ def test():
 
             progress_bar(batch_idx, len(testloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
                          % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))
+    acc = 100.*correct/total
+    experiment.log_metrics(test_accuracy=acc, test_epoch=checkpoint['epoch'])
 
 
 start_time = datetime.now()
