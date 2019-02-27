@@ -1,22 +1,32 @@
 ---
 version: 1
 
-kind: experiment
+kind: group
 
 environment:
   resources:
     gpu:
       limits: 1
 
+hptuning:
+  concurrency: 5
+  random_search:
+    n_experiments: 5
+  matrix:
+    sgd_momentum_factor:
+      uniform: 0.5:0.9 # Samples from uniform distribution over [low:hight)
+    learning_rate:
+      linspace: 0.001:0.1:10 # [start, stop, num] steps from start to stop
+    train_batch_size:
+      values: [64, 128, 256, 512, 1024]
+
+
 declarations:
-  arch: vgg16
-  train_batch_size: 64
+  arch: alexnet
   valid_batch_size: 100
   test_batch_size: 100
   workers: 2
-  epochs: 300
-  learning_rate: 0.1
-  sgd_momentum_factor: 0.9
+  epochs: 5
   sgd_weight_decay: 0.0001
   seed: 1
 

@@ -8,9 +8,9 @@ build:
   build_steps:
     - pip install -r requirements.txt
   env_vars:
-#    - [http_proxy, "http://wwwproxy.example.com:8080"]
-#    - [https_proxy, "http://wwwproxy.example.com:8080"]
-#    - [no_proxy, ".se.example.com,polyaxon-polyaxon-api"]
+    - [http_proxy, "http://wwwproxy.se.example.com:8080"]
+    - [https_proxy, "http://wwwproxy.se.example.com:8080"]
+    - [no_proxy, ".se.example.com,polyaxon-polyaxon-api"]
 
 run:
   cmd:  python3 main.py --epochs 1 --seed 1

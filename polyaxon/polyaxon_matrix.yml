@@ -1,15 +1,32 @@
 ---
 version: 1
 
-kind: experiment
+kind: group
 
 environment:
   resources:
     gpu:
       limits: 1
 
+hptuning:
+  concurrency: 5
+  matrix:
+    arch:
+      values: [
+        "alexnet",
+        "vgg16",
+        "res_net18",
+        "res_net50",
+        "res_net101",
+        "mobile_net_v2",
+        "res_next29_32x4d",
+        "res_next29_4x64d",
+        "dense_net121",
+        "preact_res_net18",
+        "dpn92"
+      ]
+
 declarations:
-  arch: vgg16
   train_batch_size: 64
   valid_batch_size: 100
   test_batch_size: 100

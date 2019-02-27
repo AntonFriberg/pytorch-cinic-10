@@ -23,12 +23,10 @@ declarations:
 build:
   image: pytorch/pytorch:1.0-cuda10.0-cudnn7-runtime
   build_steps:
-    - apt-get update && apt-get install -y unzip man
-    - "curl https://rclone.org/install.sh | bash"
     - pip install -r requirements.txt
   env_vars:
-    - [http_proxy, "http://wwwproxy.se.example.com:8080"]
-    - [https_proxy, "http://wwwproxy.se.example.com:8080"]
+    - [http_proxy, "http://wwwproxy.example.com:8080"]
+    - [https_proxy, "http://wwwproxy.example.com:8080"]
     - [no_proxy, ".se.example.com,polyaxon-polyaxon-api"]
 
 run:

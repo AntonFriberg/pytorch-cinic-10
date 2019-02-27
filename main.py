@@ -4,7 +4,7 @@ from __future__ import print_function
 import argparse
 import os
 from datetime import datetime
-from multiprocessing import Process
+import subprocess
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -14,7 +14,6 @@ import torchvision.transforms as transforms
 
 from polyaxon_client.tracking import (Experiment, get_data_paths,
                                       get_outputs_path)
-from polystores.stores.manager import StoreManager
 
 import models
 from utils import progress_bar
@@ -73,27 +72,22 @@ experiment.log_params(
     seed=args.seed
 )
 
-store = StoreManager(path=get_data_paths()['cinic-10'])
+os.environ['RCLONE_CONFIG_MINIO_TYPE'] = 's3'
+os.environ['RCLONE_CONFIG_MINIO_ENDPOINT'] = os.environ['AWS_ENDPOINT_URL']
+os.environ['RCLONE_CONFIG_MINIO_ACCESS_KEY_ID'] = os.environ['AWS_ACCESS_KEY_ID']
+os.environ['RCLONE_CONFIG_MINIO_SECRET_ACCESS_KEY'] = os.environ['AWS_SECRET_ACCESS_KEY']
+
+print('Starting rclone download')
+start_time = datetime.now()
+subprocess.run(["rclone", "sync", "minio:cinic-10",
+                "/data", "--transfers", "100", "--checkers", "100"])
+time_elapsed = datetime.now() - start_time
+print('Download time hh:mm:ss.ms) {}\n'.format(time_elapsed))
 
 train_dir = '/data/train'
 valid_dir = '/data/valid'
 test_dir = '/data/test'
 
-# Download data via Polyaxon S3 integration
-print('Starting parallel download')
-start_time = datetime.now()
-d1 = Process(target=store.download_dir, args=('train', train_dir))
-d2 = Process(target=store.download_dir, args=('valid', valid_dir))
-d3 = Process(target=store.download_dir, args=('test', test_dir))
-d1.start()
-d2.start()
-d3.start()
-print('All download threads started')
-d1.join()
-d2.join()
-d3.join()
-time_elapsed = datetime.now() - start_time
-print('Download time (hh:mm:ss.ms) {}\n'.format(time_elapsed))
 print('Logging data params to Polyaxon')
 experiment.log_params(data_download_time=str(time_elapsed))
 experiment.log_data_ref(train_dir, data_name='train')
