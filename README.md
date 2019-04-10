@@ -78,11 +78,11 @@ epochs on a single Nvidia GTX 1080TI with a training batch size of 64.
 | [ResNet50](https://arxiv.org/abs/1512.03385)          | 88.40%   | 15 hours 12 minutes  | 15 hours 27 minutes  | 20 hours 6 minutes*      |
 | [ResNet101](https://arxiv.org/abs/1512.03385)         | 88.42%   | 24 hours 57 minutes  | 25 hours 19 minutes  | 26 hours 54 minutes*     |
 | [MobileNetV2](https://arxiv.org/abs/1801.04381)       | 83.99%   | 6 hours 19 minutes   | 6 hours 10 minutes   | 7 hours 23 minutes*      |
-| [ResNeXt29(32x4d)](https://arxiv.org/abs/1611.05431)  | 88.67%   | 14 hours 21 minutes  | 14 hours 59 minutes  | 
+| [ResNeXt29(32x4d)](https://arxiv.org/abs/1611.05431)  | 88.67%   | 14 hours 21 minutes  | 14 hours 59 minutes  | 26 hours 22 minutes*     |
 | [ResNeXt29(2x64d)](https://arxiv.org/abs/1611.05431)  | 89.09%   | 14 hours 6 minutes   | 14 hours 47 minutes  | 32 hours 13 minutes*     |
-| [DenseNet121](https://arxiv.org/abs/1608.06993)       | 88.58%   | 16 hours 34 minutes  | 17 hours 3 minutes   |
+| [DenseNet121](https://arxiv.org/abs/1608.06993)       | 88.58%   | 16 hours 34 minutes  | 17 hours 3 minutes   | 31 hours 5 minutes*      |
 | [PreActResNet18](https://arxiv.org/abs/1603.05027)    | 87.01%   | 4 hours 19 minutes   | 4 hours 19 minutes   | 4 hours 56 minutes*      |
-| [DPN92](https://arxiv.org/abs/1707.01629)             | 88.18%   | 38 hours 33 minutes  | 43 hours 19 minutes  |
+| [DPN92](https://arxiv.org/abs/1707.01629)             | 88.18%   | 38 hours 33 minutes  | 43 hours 19 minutes  | 46 hours 11 minutes      |
 
 This is the complete software rundown.
 
