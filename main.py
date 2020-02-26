@@ -30,7 +30,7 @@ parser.add_argument('-a', '--arch', metavar='ARCH', default='vgg16',
                     ' (default: vgg16)')
 parser.add_argument('-j', '--workers', default=2, type=int, metavar='N',
                     help='number of data loading workers (default: 2)')
-parser.add_argument('--epochs', default=300, type=int, metavar='N',
+parser.add_argument('--epochs', default=100, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('-b', '--batch-size', default=64, type=int,
                     metavar='N',
