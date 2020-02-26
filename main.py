@@ -21,7 +21,7 @@ model_names = sorted(name for name in models.__dict__ if not name.startswith(
 best_acc = 0 # best test accuracy
 
 parser = argparse.ArgumentParser(description='PyTorch CINIC10 Training')
-parser.add_argument('data', metavar='DIR', default='data/cinic10',
+parser.add_argument('data', metavar='DIR', default='data/cinic-10',
                     help='path to dataset (default: data/cinic-10)')
 parser.add_argument('-a', '--arch', metavar='ARCH', default='vgg16',
                     choices=model_names,
