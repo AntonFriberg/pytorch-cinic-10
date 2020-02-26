@@ -210,9 +210,9 @@ print('Runnning training and test for {} epochs'.format(args.epochs))
 
 # Run training for specified number of epochs
 for epoch in range(0, args.epochs):
-    scheduler.step()
     train(epoch)
     validate(epoch)
+    scheduler.step()
 
 time_elapsed = datetime.now() - start_time
 print('Training time elapsed (hh:mm:ss.ms) {}\n'.format(time_elapsed))

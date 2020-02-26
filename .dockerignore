@@ -7,3 +7,4 @@ checkpoint
 __pycache__
 README.md
 LICENSE
+k8s-jobs
