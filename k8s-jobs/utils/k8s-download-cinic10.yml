@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cinic10-downloader
+spec:
+  template:
+    spec:
+      volumes:
+        - name: cinic10-pv-storage
+          persistentVolumeClaim:
+            claimName: cinic-10-volumeclaim
+      containers:
+      - name: cinic10-downloader-container
+        image: ubuntu
+        volumeMounts:
+        - mountPath: "/data/cinic-10"
+          name: cinic10-pv-storage
+        command: ["bin/bash", "-c"]
+        args: ["apt-get update && apt-get install -y curl && mkdir -p $(DATA_DIR) && curl -L https://datashare.is.ed.ac.uk/bitstream/handle/10283/3192/CINIC-10.tar.gz | tar xz -C $(DATA_DIR)"]
+        env:
+          - name: DATA_DIR
+            value: /data/cinic-10
+          - name: https_proxy
+            value: http://wwwproxy.se.axis.com:3128
+          - name: http_proxy
+            value: http://wwwproxy.se.axis.com:3128
+      restartPolicy: Never

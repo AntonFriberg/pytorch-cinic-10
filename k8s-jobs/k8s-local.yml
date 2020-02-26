@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pytorch-cinic10-local
+spec:
+  template:
+    spec:
+      volumes:
+        - name: cinic10-pv-storage
+          persistentVolumeClaim:
+            claimName: cinic-10-volumeclaim
+      containers:
+      - name: pytorch-cinic10-local
+        image: docker-sandbox.se.axis.com/antonfr/cinic10:latest
+        volumeMounts:
+        - mountPath: "/data/cinic-10"
+          name: cinic10-pv-storage
+        resources:
+          limits:
+            nvidia.com/gpu: 1 # requesting 1 GPU
+      restartPolicy: Never

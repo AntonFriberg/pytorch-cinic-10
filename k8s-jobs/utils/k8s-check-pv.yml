@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cinic10-check
+spec:
+  template:
+    spec:
+      volumes:
+        - name: cinic10-pv-storage
+          persistentVolumeClaim:
+            claimName: cinic-10-volumeclaim
+      containers:
+      - name: cinic10-checker
+        image: ubuntu
+        volumeMounts:
+        - mountPath: "/data/cinic-10"
+          name: cinic10-pv-storage
+        command: ["bin/bash", "-c"]
+        args: ["ls $(DATA_DIR)"]
+        env:
+          - name: DATA_DIR
+            value: /data/cinic-10
+      restartPolicy: Never
